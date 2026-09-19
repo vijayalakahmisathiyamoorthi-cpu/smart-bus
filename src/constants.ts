@@ -1,0 +1,196 @@
+import { BusData, TransitAlert } from './types';
+
+// Real-Time FastAPI Backend configuration as specified in prompt
+export const BACKEND_BASE_URL = 'https://canned-fondly-womanhood.ngrok-free.dev';
+export const API_ENDPOINT = '/all-bus-status';
+export const BUS_LOCATIONS_ENDPOINT = '/bus-locations';
+export const POLLING_INTERVAL_MS = 2000;
+
+// Base transit catalog of Chennai buses
+export const INITIAL_BUSES: BusData[] = [
+  {
+    id: '70A',
+    bus_id: '70A',
+    busNumber: '70A',
+    source: 'Avadi',
+    destination: 'Broadway',
+    route: 'Avadi → Broadway',
+    via: 'Ambattur • Villivakkam • Anna Nagar',
+    eta: '6 mins',
+    etaMinutes: 6,
+    status: 'Crowded',
+    standing_count: 11,
+    currentLocation: 'Near Villivakkam Signal',
+    speed: '32 km/h',
+    lastUpdated: 'Few sec ago',
+    coordinates: [13.1075, 80.2057], // Villivakkam
+    cameraStatus: 'Online',
+    cameraFps: 24,
+    stops: [
+      { name: 'Avadi Bus Terminus', time: '08:15 AM', passed: true, crowdEst: 'Less Crowded' },
+      { name: 'Ambattur OT', time: '08:30 AM', passed: true, crowdEst: 'Crowded' },
+      { name: 'Villivakkam Signal', time: '08:44 AM', passed: true, crowdEst: 'Crowded' },
+      { name: 'Anna Nagar West', time: '08:52 AM', passed: false, crowdEst: 'Overcrowded' },
+      { name: 'Kilpauk Medical College', time: '09:05 AM', passed: false },
+      { name: 'Central Station', time: '09:18 AM', passed: false },
+      { name: 'Broadway Terminus', time: '09:25 AM', passed: false },
+    ],
+  },
+  {
+    id: '65',
+    bus_id: '65',
+    busNumber: '65',
+    source: 'Avadi',
+    destination: 'T Nagar',
+    route: 'Avadi → T Nagar',
+    via: 'Poonamallee • Porur • Guindy',
+    eta: '5 mins',
+    etaMinutes: 5,
+    status: 'Crowded',
+    standing_count: 9,
+    currentLocation: 'Poonamallee Junction',
+    speed: '28 km/h',
+    lastUpdated: 'Few sec ago',
+    coordinates: [13.0478, 80.0984], // Poonamallee
+    cameraStatus: 'Online',
+    cameraFps: 22,
+    stops: [
+      { name: 'Avadi Bus Terminus', time: '08:20 AM', passed: true, crowdEst: 'Less Crowded' },
+      { name: 'Poonamallee Junction', time: '08:42 AM', passed: true, crowdEst: 'Crowded' },
+      { name: 'Porur Roundtana', time: '08:54 AM', passed: false },
+      { name: 'Kathipara / Guindy', time: '09:10 AM', passed: false },
+      { name: 'T Nagar Bus Stand', time: '09:25 AM', passed: false },
+    ],
+  },
+  {
+    id: '26G',
+    bus_id: '26G',
+    busNumber: '26G',
+    source: 'Ambattur',
+    destination: 'Broadway',
+    route: 'Ambattur → Broadway',
+    via: 'Padi • ICF • Perambur',
+    eta: '5 mins',
+    etaMinutes: 5,
+    status: 'Overcrowded',
+    standing_count: 16,
+    currentLocation: 'Perambur Flyover',
+    speed: '18 km/h',
+    lastUpdated: 'Few sec ago',
+    coordinates: [13.1119, 80.2337], // Perambur
+    cameraStatus: 'Online',
+    cameraFps: 25,
+    stops: [
+      { name: 'Ambattur Estate', time: '08:10 AM', passed: true, crowdEst: 'Crowded' },
+      { name: 'Padi Saravana Stores', time: '08:22 AM', passed: true, crowdEst: 'Crowded' },
+      { name: 'ICF / Villivakkam', time: '08:35 AM', passed: true, crowdEst: 'Overcrowded' },
+      { name: 'Perambur Flyover', time: '08:45 AM', passed: true, crowdEst: 'Overcrowded' },
+      { name: 'Pulianthope', time: '08:55 AM', passed: false },
+      { name: 'Broadway', time: '09:15 AM', passed: false },
+    ],
+  },
+  {
+    id: '40A',
+    bus_id: '40A',
+    busNumber: '40A',
+    source: 'Avadi',
+    destination: 'Anna Square',
+    route: 'Avadi → Anna Square',
+    via: 'Mogappair • Koyambedu • Chetpet',
+    eta: '8 mins',
+    etaMinutes: 8,
+    status: 'Overcrowded',
+    standing_count: 19,
+    currentLocation: 'Koyambedu Market',
+    speed: '14 km/h',
+    lastUpdated: 'Few sec ago',
+    coordinates: [13.0694, 80.1948], // Koyambedu
+    cameraStatus: 'Online',
+    cameraFps: 24,
+    stops: [
+      { name: 'Avadi', time: '08:05 AM', passed: true, crowdEst: 'Crowded' },
+      { name: 'Mogappair West', time: '08:25 AM', passed: true, crowdEst: 'Overcrowded' },
+      { name: 'Koyambedu Market', time: '08:40 AM', passed: true, crowdEst: 'Overcrowded' },
+      { name: 'Chetpet Station', time: '08:58 AM', passed: false },
+      { name: 'Anna Square Beach', time: '09:20 AM', passed: false },
+    ],
+  },
+  {
+    id: '41D',
+    bus_id: '41D',
+    busNumber: '41D',
+    source: 'Mandaveli',
+    destination: 'Tambaram',
+    route: 'Mandaveli → Tambaram',
+    via: 'Adyar • Guindy • Chromepet',
+    eta: '12 mins',
+    etaMinutes: 12,
+    status: 'Less Crowded',
+    standing_count: 2,
+    currentLocation: 'Little Mount',
+    speed: '36 km/h',
+    lastUpdated: 'Few sec ago',
+    coordinates: [13.0135, 80.2223], // Little Mount / Guindy
+    cameraStatus: 'Online',
+    cameraFps: 25,
+    stops: [
+      { name: 'Mandaveli Depo', time: '08:30 AM', passed: true, crowdEst: 'Less Crowded' },
+      { name: 'Adyar Signal', time: '08:40 AM', passed: true, crowdEst: 'Less Crowded' },
+      { name: 'Little Mount', time: '08:48 AM', passed: true, crowdEst: 'Less Crowded' },
+      { name: 'Guindy Race Course', time: '08:58 AM', passed: false },
+      { name: 'Chromepet MIT', time: '09:15 AM', passed: false },
+      { name: 'Tambaram Sanatorium', time: '09:28 AM', passed: false },
+    ],
+  },
+];
+
+export const INITIAL_ALERTS: TransitAlert[] = [
+  {
+    id: 'alt-1',
+    busNumber: '70A',
+    title: 'Bus 70A is approaching Villivakkam',
+    message: 'Crowd level: Crowded. 11 standing passengers detected by YOLO model.',
+    type: 'proximity',
+    severity: 'warning',
+    timestamp: 'Just now',
+  },
+  {
+    id: 'alt-2',
+    busNumber: '26G',
+    title: 'Bus 26G is currently Overcrowded',
+    message: 'Standing count is 16. Passengers advised to wait for Bus 70A.',
+    type: 'crowd',
+    severity: 'danger',
+    timestamp: '2 mins ago',
+  },
+  {
+    id: 'alt-3',
+    title: 'Live AI synchronization active',
+    message: 'Edge YOLO detection node sync interval: 2.0s via FastAPI microservice.',
+    type: 'system',
+    severity: 'success',
+    timestamp: '5 mins ago',
+  },
+  {
+    id: 'alt-4',
+    busNumber: '41D',
+    title: 'Comfortable commute on Bus 41D',
+    message: 'Only 2 standing passengers. Ideal for boarding along Guindy corridor.',
+    type: 'crowd',
+    severity: 'info',
+    timestamp: '8 mins ago',
+  }
+];
+
+export const POPULAR_LOCATIONS = [
+  'Avadi',
+  'Broadway',
+  'Ambattur',
+  'T Nagar',
+  'Anna Nagar',
+  'Koyambedu',
+  'Guindy',
+  'Tambaram',
+  'Mandaveli',
+  'Central Station'
+];
